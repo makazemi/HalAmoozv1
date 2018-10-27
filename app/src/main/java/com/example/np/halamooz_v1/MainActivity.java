@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.np.halamooz_v1.config.Config;
 import com.example.np.halamooz_v1.model.User;
 
 public class MainActivity extends BaseActivity {
@@ -33,7 +34,7 @@ public class MainActivity extends BaseActivity {
     private View header;
     private Button btnSign;
     private TextView txtName;
-    private User user;
+   // private User user;
     private TextView txt;
 
     @Override
@@ -89,6 +90,7 @@ public class MainActivity extends BaseActivity {
         drawerToggle = setupDrawerToggle();
         // Tie DrawerLayout events to the ActionBarToggle
         mDrawer.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
 
         header=nvDrawer.getHeaderView(0);
         btnSign=header.findViewById(R.id.btnSign);
@@ -103,15 +105,15 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    @Override
+    public void loadCustomView() {
+        updateUI(Config.CurrentUser);
+    }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case android.R.id.home:
-//                mDrawer.openDrawer(GravityCompat.START);
-//                return true;
-//        }
+
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
@@ -166,26 +168,14 @@ public class MainActivity extends BaseActivity {
         return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.app_name,  R.string.app_name);
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        drawerToggle.syncState();
-    }
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Pass any configuration change to the drawer toggles
-        drawerToggle.onConfigurationChanged(newConfig);
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUI(user);
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        updateUI(user);
+//    }
     private void updateUI(User user){
-        if(user.isLogin){
+        if(Config.CurrentUser!=null){
             btnSign.setVisibility(View.GONE);
             txtName.setVisibility(View.VISIBLE);
             txtName.setText(user.getName()+" "+user.getFamily());

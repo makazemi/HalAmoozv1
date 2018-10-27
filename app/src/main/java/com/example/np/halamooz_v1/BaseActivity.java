@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import com.example.np.halamooz_v1.model.User;
 
@@ -40,10 +41,21 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void showSnack(boolean isConnected) {
         if (isConnected) {
             setContentView(getLayout());
+            load();
         }
 
         else{
             setContentView(R.layout.internet_screen);
+            Button btnReload=findViewById(R.id.btnReload);
+            btnReload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   // showSnack(isOnline(getApplicationContext()));
+                    finish();
+                    startActivity(getIntent());
+                }
+            });
+
         }
     }
 
@@ -51,6 +63,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract void load();
 
+    public abstract void loadCustomView();
 
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if( isOnline(getApplicationContext()) ){
+            loadCustomView();
+        }
+    }
 }

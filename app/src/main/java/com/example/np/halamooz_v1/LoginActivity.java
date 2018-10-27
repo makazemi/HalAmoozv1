@@ -10,9 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.np.halamooz_v1.config.Config;
 import com.example.np.halamooz_v1.model.User;
 import com.example.np.halamooz_v1.model.signResponse;
 import com.example.np.halamooz_v1.webService.APIClient;
@@ -25,7 +27,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends AppCompatActivity  {
 
     private EditText edtEmail,edtPassword;
     private Button btnLogin;
@@ -34,41 +36,29 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login);
 
-//        edtEmail=findViewById(R.id.edtEmail);
-//        edtPassword=findViewById(R.id.edtPassword);
-//        btnLogin=findViewById(R.id.btnSignIn);
-//        txtForget=findViewById(R.id.txtForgetPassword);
-//
-//        btnLogin.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(validation())
-//                    doLogin();
-//            }
-//        });
-    }
-
-    @Override
-    public int getLayout() {
-        return R.layout.activity_login;
-    }
-
-    @Override
-    public void load() {
         edtEmail=findViewById(R.id.edtEmail);
         edtPassword=findViewById(R.id.edtPassword);
         btnLogin=findViewById(R.id.btnSignIn);
         txtForget=findViewById(R.id.txtForgetPassword);
+        imgVisible=findViewById(R.id.imgIconVisibilty);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validation())
-                    doLogin();
+                if(Config.isOnline(LoginActivity.this)) {
+                    if (validation()) {
+                        doLogin();
+                        Log.e("LoginActivity","btnsingin");
+                    }
+                }
+                else {
+                    Toast.makeText(LoginActivity.this,"اتصال به اینترنت برقرار نمی باشد!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
     }
 
 
@@ -79,9 +69,10 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onResponse(Call<signResponse> call, Response<signResponse> response) {
                 if(response.isSuccessful()){
-                    User user=new User(edtEmail.getText().toString());
-                    User.isLogin=true;
-                    User.setToken(response.body().getToken());
+                    Config.CurrentUser=new User(response.body().getId(),edtEmail.getText().toString());
+                    Config.CurrentUser.setLogin(true);
+                    Config.CurrentUser.setToken(response.body().getToken());
+                    Log.e("LoginActivity","200");
                     Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                     startActivity(intent);
                 }
@@ -89,17 +80,24 @@ public class LoginActivity extends BaseActivity {
                     AlertDialog.Builder dialog = new AlertDialog.Builder(getApplicationContext());
                     dialog.setCancelable(true);
                     dialog.setMessage(response.body().getMessage());
+                    Log.e("LoginActivity","422");
                 }
                 if(response.code()==404){
                     AlertDialog.Builder dialog = new AlertDialog.Builder(getApplicationContext());
                     dialog.setCancelable(true);
                     dialog.setMessage(response.body().getMessage());
+                    if(response.body().getData()!=null){
+                        dialog.setMessage(response.body().getData().toString());
+                        Log.e("LoginActivity","404");
+                    }
+                    else
+                        dialog.setMessage(response.body().getMessage());
                 }
             }
 
             @Override
             public void onFailure(Call<signResponse> call, Throwable t) {
-               // Log.e("LoginActivity","onFailure",t);
+                Log.e("LoginActivity","onFailure",t);
                 Log.e("LoginActivity",call.toString());
             }
         });
@@ -138,4 +136,31 @@ public class LoginActivity extends BaseActivity {
         }
         return true;
     }
+
+//    @Override
+//    public void onClick(View v) {
+//        int id = v.getId();
+//
+//        switch (id) {
+//            case R.id.btnSignIn: {
+//                if(Config.isOnline(this)) {
+//                    if (validation()) {
+//                        doLogin();
+//                        Log.e("LoginActivity","btnsingin");
+//                    }
+//                }
+//                else {
+//                    Toast.makeText(this,"اتصال به اینترنت برقرار نمی باشد!",Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//            }
+//            case R.id.txtRegister: {
+//                Intent intent=new Intent(this,RegisterActivity.class);
+//                startActivity(intent);
+//                break;
+//            }
+//            case R.id.txtForgetPassword:
+//                break;
+//        }
+//    }
 }

@@ -9,6 +9,10 @@ public class signResponse {
     private String message;
     @SerializedName("token")
     private String token;
+    @SerializedName("id")
+    private String id;
+    @SerializedName("data")
+    private DataSingError data;
 
     public signResponse(boolean success, String message, String token) {
         this.success = success;
@@ -38,5 +42,21 @@ public class signResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public DataSingError getData() {
+        return data;
+    }
+
+    public void setData(DataSingError data) {
+        this.data = data;
     }
 }
